@@ -5,8 +5,9 @@ import 'widgets/chart.dart';
 import 'widgets/new_transaction.dart';
 import 'widgets/transaction_list.dart';
 
-void main() {
+void main() async{
   WidgetsFlutterBinding.ensureInitialized();
+
   runApp(MyApp());
 }
 
