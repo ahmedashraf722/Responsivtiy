@@ -7,7 +7,6 @@ import 'widgets/transaction_list.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
-
   runApp(MyApp());
 }
 
