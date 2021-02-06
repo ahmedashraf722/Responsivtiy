@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 //import 'package:flutter/services.dart';
 
 import 'models/transaction.dart';
@@ -121,30 +124,42 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     final mq = MediaQuery.of(context);
     final isLandScape = mq.orientation == Orientation.landscape;
-    var _appBar = AppBar(
-      title: Text(
-        'Personal Expenses',
-      ),
-      actions: <Widget>[
-        IconButton(
-          icon: Icon(Icons.add),
-          onPressed: () => _startAddNewTransaction(context),
-        ),
-      ],
-    );
+    final PreferredSizeWidget appBar = Platform.isIOS
+        ? CupertinoNavigationBar(
+            middle: Text('Personal Expenses'),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                GestureDetector(
+                  child: Icon(CupertinoIcons.add),
+                  onTap: () => _startAddNewTransaction(context),
+                ),
+              ],
+            ),
+          )
+        : AppBar(
+            title: Text(
+              'Personal Expenses',
+            ),
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.add),
+                onPressed: () => _startAddNewTransaction(context),
+              ),
+            ],
+          );
     var chartC = Container(
-      height: (mq.size.height - _appBar.preferredSize.height - mq.padding.top) *
-          0.3,
+      height:
+          (mq.size.height - appBar.preferredSize.height - mq.padding.top) * 0.3,
       child: Chart(_recentTransactions),
     );
     var txtListT = Container(
-      height: (mq.size.height - _appBar.preferredSize.height - mq.padding.top) *
-          0.7,
+      height:
+          (mq.size.height - appBar.preferredSize.height - mq.padding.top) * 0.7,
       child: TransactionList(_userTransactions, _deleteTransaction),
     );
-    return Scaffold(
-      appBar: _appBar,
-      body: SingleChildScrollView(
+    var _body = SafeArea(
+      child: SingleChildScrollView(
         child: Column(
           // mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -155,8 +170,12 @@ class _MyHomePageState extends State<MyHomePage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("Show Cart"),
-                  Switch(
+                  Text(
+                    "Show Cart",
+                    style: Theme.of(context).textTheme.headline6,
+                  ),
+                  CupertinoSwitch(
+                    activeColor: Theme.of(context).accentColor,
                     value: _showChart,
                     onChanged: (newValue) {
                       setState(() {
@@ -164,13 +183,40 @@ class _MyHomePageState extends State<MyHomePage> {
                       });
                     },
                   ),
+                  /*Switch.adaptive(
+                    activeColor: Theme.of(context).accentColor,
+                    value: _showChart,
+                    onChanged: (newValue) {
+                      setState(() {
+                        _showChart = newValue;
+                      });
+                    },
+                  ),*/
+                  /*Platform.isIOS
+                      ? CupertinoSwitch(
+                          activeColor: Theme.of(context).accentColor,
+                          value: _showChart,
+                          onChanged: (newValue) {
+                            setState(() {
+                              _showChart = newValue;
+                            });
+                          },
+                        )
+                      : Switch(
+                          value: _showChart,
+                          onChanged: (newValue) {
+                            setState(() {
+                              _showChart = newValue;
+                            });
+                          },
+                        ),*/
                 ],
               ),
             if (isLandScape)
               _showChart == true
                   ? Container(
                       height: (mq.size.height -
-                              _appBar.preferredSize.height -
+                              appBar.preferredSize.height -
                               mq.padding.top) *
                           0.7,
                       child: Chart(_recentTransactions),
@@ -179,11 +225,24 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () => _startAddNewTransaction(context),
-      ),
     );
+
+    return Platform.isIOS
+        ? CupertinoPageScaffold(
+            navigationBar: appBar,
+            child: _body,
+          )
+        : Scaffold(
+            appBar: appBar,
+            body: _body,
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerFloat,
+            floatingActionButton: Platform.isIOS
+                ? Container()
+                : FloatingActionButton(
+                    child: Icon(Icons.add),
+                    onPressed: () => _startAddNewTransaction(context),
+                  ),
+          );
   }
 }
